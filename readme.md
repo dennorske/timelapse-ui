@@ -10,3 +10,6 @@ Maybe. Depends if I get more nice ideas to put in, but for now, this is the fina
 
 ## Live demo
 You can find it hosted at https://timelapse.pawbox.io/
+
+## Screenshot from page
+![screenshot](https://github.com/dennorske/timelapse-ui/blob/master/readme-image.png)
