@@ -9,4 +9,4 @@ You can also speed up the timelapses using the speed multiplier.
 Maybe. Depends if I get more nice ideas to put in, but for now, this is the final result. PS: The homepage is not even made... 
 
 ## Live demo
-You can find it hosted at https://timelapse.pawbox.io/sources
+You can find it hosted at https://timelapse.pawbox.io/

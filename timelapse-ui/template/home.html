@@ -1,7 +1,94 @@
-{% extends 'base.html' %}
+{% extends "base.html"%}
 
-<title>{% block title %}Home{% endblock %}</title>
+<title>{% block title %}Camera Sources{% endblock %}</title>
 
 {% block content %}
-<h1> Currently empty </h1>
-{% endblock %}
+<div class="container mt-4">
+    <h1> Timelapses from {{ data["camcount"] }} locations</h1>
+    <small id="totalImagesInfo"></small>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Welcome!</h5>
+            <h6 class="card-subtitle mb-2 text-muted"></h6>
+            <p class="card-text">This website is made as a front-end for my friend's API and generated videos - The intention behind it was to learn front-end programming using tools like Fast API (Python), Jinja templates with a good mix of JavaScript.<br> All the videos
+                are generated from images taken from public web-cameras around in Norway. The sources vary, but the majority comes from Vegvesenet's web-cameras, which are updated approximately every 10. minutes.<br> Timelapses are generated every Monday
+                and Thursday morning.
+            </p>
+            <a href="https://www.vegvesen.no/trafikkinformasjon/reiseinformasjon/webkamera/#/" class="card-link">Vegvesen.no</a>
+            <a href="https://www.github.com/denNorske" class="card-link">My GitHub</a>
+            <a href="https://github.com/mariusvollen" class="card-link">Friend's GitHub</a>
+        </div>
+    </div>
+</div>
+
+<div class="list-group">
+    <!-- CDN example (unpkg) -->
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/plugin/relativeTime.js"></script>
+    <script>
+        dayjs.extend(window.dayjs_plugin_relativeTime)
+    </script>
+    {% for cam in data["cameras"] %}
+    <div class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{ cam["prettyname"] }}</h5>
+            <div class="float-right">
+                <small class="float-right">Last update: <span id="timedata{{ loop.index0 }}">Unknown</span></small></br>
+                <small class="float-right">Since: <span id="firsttime{{ loop.index0 }}">Unknown</span></small>
+                <script>
+                    document.getElementById("timedata{{ loop.index0 }}").innerHTML = dayjs.unix(Number("{{ cam['lastGen'] }}")).fromNow()
+                    document.getElementById("firsttime{{ loop.index0 }}").innerHTML = dayjs.unix(Number("{{ cam['firstimage'] }}")).format("DD/MMM/YYYY")
+                </script>
+            </div>
+        </div>
+        <div id="videoImageCount{{ loop.index0 }}">
+            <script>
+                document.getElementById("videoImageCount{{ loop.index0 }}").innerHTML = "Images: " + Number('{{ cam["count"] }}').toLocaleString()
+            </script>
+        </div>
+        <button onClick="onVideoClick(`{{ cam['name'] }}`)" data-toggle="modal" data-target="#modal" class="btn btn-primary float-right" id="btn{{ loop.index0 }}">Watch</button>
+    </div> {% endfor %}
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="popup" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+
+            <!--Content-->
+            <div class="modal-content" id="modalframe">
+
+                <!--Body-->
+                <div class="modal-body mb-0 p-0">
+
+                    <div id="speedID" class="embed-responsive embed-responsive-4by3 z-depth-1-half">
+                        <video id="modalvideo" class="embed-responsive-item" controls></video>
+                    </div>
+                    <div id="speedcontrol" class="mt-2 container">
+                        <input class="mt-2" onchange="onSpeedChange()" type="range" id="pbrate" min=.5 max=5.0 value=1 step=.1>
+                        <span><label id="pbrateLabel" for="pbrate">Speed:</label></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let totalImagesVar = '{{ data["totalimages"] }}'
+        loadStats()
+
+        function loadStats() {
+            let count = Number(totalImagesVar).toLocaleString()
+            document.getElementById("totalImagesInfo").innerHTML = "That makes " + count + " images in total!";
+        }
+
+        function onVideoClick(name) {
+            document.getElementById("modalvideo").src = 'https://timelapse.vollen.xyz/static/video/' + name + ".mp4";
+            onSpeedChange()
+
+            return;
+        }
+
+        function onSpeedChange() {
+            let value = document.getElementById("pbrate").value;
+            document.getElementById("pbrateLabel").innerHTML = "Speed: " + value + "x";
+            document.getElementById("modalvideo").playbackRate = value;
+        }
+    </script>
+    {% endblock %}

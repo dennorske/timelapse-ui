@@ -14,22 +14,17 @@ templates = Jinja2Templates(directory="template")
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    return templates.TemplateResponse("home.html", {
-        "request": request
-    })
-
-
-@app.get("/sources", tags=["Overview"], response_class=HTMLResponse)
-async def get_sources(request: Request):
+async def get_videos(request: Request):
     r = requests.request("GET", os.getenv("API_BASE"))
     dict = {}
     if(r.status_code == 200 and r.status_code < 299):
         dict = json.loads(r.text)
-    return templates.TemplateResponse("sources.html", {
+    return templates.TemplateResponse("home.html", {
         "request": request,
         "data": dict
     })
+
+
 
 
 def pretty_date(time=False):
